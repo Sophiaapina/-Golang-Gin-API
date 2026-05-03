@@ -43,7 +43,6 @@ var (
 	albumsMu sync.RWMutex
 )
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const tokenChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
@@ -81,9 +80,7 @@ func authMiddleware() gin.HandlerFunc {
 	}
 }
 
-// ─── Handlers ─────────────────────────────────────────────────────────────────
 
-// POST /login  (uses HTTP Basic Auth)
 func loginHandler(c *gin.Context) {
 	username, password, ok := c.Request.BasicAuth()
 	if !ok {
@@ -108,7 +105,6 @@ func loginHandler(c *gin.Context) {
 	})
 }
 
-// GET /logout
 func logoutHandler(c *gin.Context) {
 	username := c.GetString("username")
 
@@ -124,14 +120,12 @@ func logoutHandler(c *gin.Context) {
 	})
 }
 
-// GET /albums
 func getAlbumsHandler(c *gin.Context) {
 	albumsMu.RLock()
 	defer albumsMu.RUnlock()
 	c.JSON(http.StatusOK, albums)
 }
 
-// GET /albums/:id
 func getAlbumByIDHandler(c *gin.Context) {
 	id := c.Param("id")
 
@@ -148,7 +142,6 @@ func getAlbumByIDHandler(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{"error": "Album with ID " + id + " not found"})
 }
 
-// POST /createAlbum
 func createAlbumHandler(c *gin.Context) {
 	var newAlbum Album
 	if err := c.ShouldBindJSON(&newAlbum); err != nil {
@@ -175,7 +168,6 @@ func createAlbumHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, newAlbum)
 }
 
-// GET /status
 func statusHandler(c *gin.Context) {
 	username := c.GetString("username")
 	c.JSON(http.StatusOK, gin.H{
@@ -188,11 +180,8 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	r := gin.Default()
-
-	// Public route
 	r.GET("/login", loginHandler)
 
-	// Protected routes
 	auth := r.Group("/")
 	auth.Use(authMiddleware())
 	{
